@@ -1,20 +1,47 @@
-import React, { useState } from 'react';
-
+import React, { useState, useContext } from 'react';
+import { Helmet } from "react-helmet";
 import './App.css';
-
+import { ThemeProvider, ThemeContext } from "./themeProvider";
+import Styles, { THEME_TYPE } from './style';
 import Table from './Table';
 import Chart from './Chart';
 import calculate from './calculations';
 
 const defaultOverpayment = { month: '1', year: '0', amount: '0' };
 
+
+const StyleTag = () => {
+
+  const { theme, toggle, dark } = useContext(ThemeContext)
+
+  const themeMode = !dark ?
+    THEME_TYPE.LIGHT :
+    THEME_TYPE.DARK;
+  return (
+    <Helmet>
+      <style>{Styles(themeMode)}</style>
+    </Helmet>
+  );
+};
+
 export default () => {
+
+
+  return (
+    <ThemeProvider>
+      <StyleTag />
+      <Content />
+    </ThemeProvider>
+  );
+};
+
+const Content = () => {
   const [initial, setInitial] = useState('200000');
+  const { theme, toggle, dark } = useContext(ThemeContext)
   const [rate, setRate] = useState('5');
   const [years, setYears] = useState('25');
   const [monthlyOverpayment, setMonthlyOverpayment] = useState('0');
   const [overpayments, setOverpayments] = useState([defaultOverpayment]);
-
   const updateOverpayment = index => ({ target }) =>
     setOverpayments(
       overpayments.map((overpayment, i) =>
@@ -34,9 +61,20 @@ export default () => {
 
   return (
     <div>
-      <nav className="navbar navbar-default">
+      <nav className="navbar ">
         <div className="navbar-header">
           <div className="navbar-brand">Mortgage Overpayment Calculator</div>
+          <div className="switch-container">
+            <label className="switch">
+              <input
+                data-testid="theme-changer"
+                type="checkbox"
+                onChange={toggle}
+              />
+              <span className="slider round"></span>
+            </label>
+            <span className="text-color bold">Dark mode</span>
+          </div>
         </div>
       </nav>
       <div className="container-fluid">
@@ -146,5 +184,5 @@ export default () => {
         <Table className="col-sm-4" payments={payments} />
       </div>
     </div>
-  );
-};
+  )
+}
